@@ -1,3 +1,175 @@
+--// CATEL GANG INTRO (6 SECONDS)
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+local oldIntro = PlayerGui:FindFirstChild("CelestialSyndicateIntro")
+if oldIntro then
+    oldIntro:Destroy()
+end
+
+local introGui = Instance.new("ScreenGui")
+introGui.Name = "CatelGangIntro"
+introGui.IgnoreGuiInset = true
+introGui.ResetOnSpawn = false
+introGui.DisplayOrder = 10000
+introGui.Parent = PlayerGui
+
+local background = Instance.new("Frame")
+background.Name = "Background"
+background.Size = UDim2.fromScale(1, 1)
+background.BackgroundColor3 = Color3.fromRGB(5, 5, 10)
+background.BorderSizePixel = 0
+background.Parent = introGui
+
+-- Rainbow circle
+local circle = Instance.new("Frame")
+circle.Name = "RainbowCircle"
+circle.Size = UDim2.fromOffset(240, 240)
+circle.AnchorPoint = Vector2.new(0.5, 0.5)
+circle.Position = UDim2.new(0.5, 0, 0.31, 0)
+circle.BackgroundTransparency = 1
+circle.Parent = background
+
+local circleCorner = Instance.new("UICorner")
+circleCorner.CornerRadius = UDim.new(1, 0)
+circleCorner.Parent = circle
+
+local circleStroke = Instance.new("UIStroke")
+circleStroke.Thickness = 5
+circleStroke.Color = Color3.new(1, 1, 1)
+circleStroke.Parent = circle
+
+local rainbow = Instance.new("UIGradient")
+rainbow.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 35, 35)),
+    ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 190, 35)),
+    ColorSequenceKeypoint.new(0.34, Color3.fromRGB(70, 255, 90)),
+    ColorSequenceKeypoint.new(0.51, Color3.fromRGB(40, 220, 255)),
+    ColorSequenceKeypoint.new(0.68, Color3.fromRGB(65, 90, 255)),
+    ColorSequenceKeypoint.new(0.84, Color3.fromRGB(210, 55, 255)),
+    ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 35, 35))
+})
+rainbow.Parent = circleStroke
+
+local rainbowTween = TweenService:Create(
+    rainbow,
+    TweenInfo.new(3, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1),
+    {Rotation = 360}
+)
+rainbowTween:Play()
+
+-- Actual seven-sided heptagon, built from seven line segments
+local heptagon = Instance.new("Frame")
+heptagon.Name = "Heptagon"
+heptagon.Size = UDim2.fromOffset(170, 170)
+heptagon.AnchorPoint = Vector2.new(0.5, 0.5)
+heptagon.Position = UDim2.new(0.5, 0, 0.31, 0)
+heptagon.BackgroundTransparency = 1
+heptagon.Parent = background
+
+local heptagonLines = {}
+local radius = 70
+for i = 1, 7 do
+    local angle1 = math.rad(-90 + (i - 1) * (360 / 7))
+    local angle2 = math.rad(-90 + i * (360 / 7))
+    local x1, y1 = math.cos(angle1) * radius, math.sin(angle1) * radius
+    local x2, y2 = math.cos(angle2) * radius, math.sin(angle2) * radius
+    local dx, dy = x2 - x1, y2 - y1
+
+    local line = Instance.new("Frame")
+    line.Name = "Side" .. i
+    line.AnchorPoint = Vector2.new(0.5, 0.5)
+    line.Position = UDim2.new(0.5, (x1 + x2) / 2, 0.5, (y1 + y2) / 2)
+    line.Size = UDim2.fromOffset(math.sqrt(dx * dx + dy * dy), 3)
+    line.Rotation = math.deg(math.atan2(dy, dx))
+    line.BackgroundColor3 = Color3.fromRGB(255, 225, 170)
+    line.BorderSizePixel = 0
+    line.Parent = heptagon
+    table.insert(heptagonLines, line)
+end
+
+local rotationValue = Instance.new("NumberValue")
+rotationValue.Value = 0
+rotationValue.Changed:Connect(function(value)
+    heptagon.Rotation = value
+end)
+
+local heptagonTween = TweenService:Create(
+    rotationValue,
+    TweenInfo.new(6, Enum.EasingStyle.Linear),
+    {Value = 360}
+)
+heptagonTween:Play()
+
+-- Intro title
+local title = Instance.new("TextLabel")
+title.Name = "Title"
+title.Size = UDim2.new(1, -24, 0, 54)
+title.AnchorPoint = Vector2.new(0.5, 0)
+title.Position = UDim2.new(0.5, 0, 0.61, 0)
+title.BackgroundTransparency = 1
+title.Text = "CATEL GANG"
+title.TextColor3 = Color3.fromRGB(255, 225, 175)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.Parent = background
+
+local subtitle = Instance.new("TextLabel")
+subtitle.Name = "Subtitle"
+subtitle.Size = UDim2.new(1, -24, 0, 30)
+subtitle.AnchorPoint = Vector2.new(0.5, 0)
+subtitle.Position = UDim2.new(0.5, 0, 0.70, 0)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = " CT ON TOP"
+subtitle.TextColor3 = Color3.fromRGB(190, 150, 255)
+subtitle.TextSize = 22
+subtitle.Font = Enum.Font.GothamSemibold
+subtitle.Parent = background
+
+-- Six-second loading bar
+local barBack = Instance.new("Frame")
+barBack.Name = "LoadingBarBack"
+barBack.Size = UDim2.new(0.62, 0, 0, 8)
+barBack.AnchorPoint = Vector2.new(0.5, 0.5)
+barBack.Position = UDim2.new(0.5, 0, 0.86, 0)
+barBack.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
+barBack.BorderSizePixel = 0
+barBack.Parent = background
+
+local barBackCorner = Instance.new("UICorner")
+barBackCorner.CornerRadius = UDim.new(1, 0)
+barBackCorner.Parent = barBack
+
+local bar = Instance.new("Frame")
+bar.Name = "Progress"
+bar.Size = UDim2.new(0, 0, 1, 0)
+bar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+bar.BorderSizePixel = 0
+bar.Parent = barBack
+
+local barCorner = Instance.new("UICorner")
+barCorner.CornerRadius = UDim.new(1, 0)
+barCorner.Parent = bar
+
+local barGradient = Instance.new("UIGradient")
+barGradient.Color = rainbow.Color
+barGradient.Parent = bar
+
+local loadingTween = TweenService:Create(
+    bar,
+    TweenInfo.new(6, Enum.EasingStyle.Linear),
+    {Size = UDim2.new(1, 0, 1, 0)}
+)
+loadingTween:Play()
+loadingTween.Completed:Wait()
+
+rainbowTween:Cancel()
+heptagonTween:Cancel()
+rotationValue:Destroy()
+introGui:Destroy()
+
 --// SERVICES
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
@@ -47,12 +219,12 @@ local blur = Instance.new("BlurEffect", Lighting)
 blur.Size = 0
 
 --// DESTROY PRIOR RENDERS
-if pgui:FindFirstChild("CELESTIAL SPAMMER MV1") then
-    pgui["CELESTIAL SPAMMER MV1"]:Destroy()
+if pgui:FindFirstChild("CATEL GANG") then
+    pgui["CATEL GANG"]:Destroy()
 end
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "CELESTIAL SPAMMER MV1"
+gui.Name = "CATEL GANG"
 gui.Parent = pgui
 gui.IgnoreGuiInset = true
 gui.ResetOnSpawn = false
@@ -158,7 +330,7 @@ bootStrk.Color = GrayAccent
 local bootTitle = Instance.new("TextLabel", bootFrame)
 bootTitle.Size = UDim2.new(1, 0, 0, 40)
 bootTitle.Position = UDim2.new(0, 0, 0, 30)
-bootTitle.Text = "CELESTIAL SPAMMER MV1"
+bootTitle.Text = "CATEL GANG SPAMMER"
 bootTitle.Font = Enum.Font.GothamBlack
 bootTitle.TextColor3 = DeepTextDark
 bootTitle.TextSize = 22
@@ -282,7 +454,7 @@ desc1.BackgroundTransparency = 1
 local desc2 = Instance.new("TextLabel", welcomeUI)
 desc2.Size = UDim2.new(1, -50, 0, 20)
 desc2.Position = UDim2.new(0, 25, 0, 135)
-desc2.Text = "CELESTIAL SPAMMER MV1"
+desc2.Text = "CATEL GANG SPAMMER"
 desc2.Font = Enum.Font.Code
 desc2.TextColor3 = MutedText
 desc2.TextSize = 12
@@ -293,7 +465,7 @@ desc2.BackgroundTransparency = 1
 local desc3 = Instance.new("TextLabel", welcomeUI)
 desc3.Size = UDim2.new(1, -50, 0, 20)
 desc3.Position = UDim2.new(0, 25, 0, 160)
-desc3.Text = "HII I AM YADSAN XD WELCOME TO CELESTIAL SYNDICATE!"
+desc3.Text = "HII I AM XD WELCOME TO CATEL GANG!"
 desc3.Font = Enum.Font.GothamBold
 desc3.TextColor3 = DeepTextDark
 desc3.TextSize = 12
@@ -344,7 +516,7 @@ mainStrk.Color = GrayAccent
 local mainHeader = Instance.new("TextLabel", main)
 mainHeader.Size = UDim2.new(1, -90, 0, 35)
 mainHeader.Position = UDim2.new(0, 20, 0, 10)
-mainHeader.Text = "CELESTIAL SPAMMER MV1 BY YADSAN X LUFFY // SYSTEM CORE"
+mainHeader.Text = "CATEL GANG BY ONWER YS // SYSTEM CORE"
 mainHeader.Font = Enum.Font.GothamBlack
 mainHeader.TextColor3 = DeepTextDark
 mainHeader.TextSize = 16
@@ -600,7 +772,7 @@ toggle.Visible = false
 toggle.Size = UDim2.new(0, 120, 0, 40)
 toggle.Position = UDim2.new(0, 20, 1, -55)
 toggle.BackgroundColor3 = PureWhite
-toggle.Text = "CELESTIAL🔮SYNDICATE"
+toggle.Text = "CATEL GANG"
 toggle.Font = Enum.Font.GothamBold
 toggle.TextColor3 = PureWhite
 toggle.TextSize = 12
@@ -696,7 +868,7 @@ end
 
 start.MouseButton1Click:Connect(function()
     running = not running
-    start.Text = running and "TERMINATE SYSTEM" or "START CELESTIAL SPAMMER MV1"
+    start.Text = running and "TERMINATE SYSTEM" or "START CATEL SPAMMER"
     
     if running then
         startGrad.Enabled = false
@@ -763,8 +935,8 @@ end)
 --==================================================
 local function applyIdentity()
     if NameRemote then
-        NameRemote:FireServer("RolePlayName","* CELESTIAL SPAMMER MV1 *")
-        NameRemote:FireServer("RolePlayBio","* CELESTIAL SPAMMER MV1 *")
+        NameRemote:FireServer("RolePlayName","* CATEL GANG SPAMMER *")
+        NameRemote:FireServer("RolePlayBio","* CATEL GANG SPAMMER *")
     end
 end
 
@@ -856,13 +1028,13 @@ startBtn.MouseButton1Click:Connect(function()
 
     applyIdentity()
     
-    send([[@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@ CELESTIAL SPAMMER MV1 BY LEADER X LUFFY LOADED 🔮👾 CELESTIAL SYNDICATE ON TOP 🔮💢]])
+    send([[@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@-_-@ CATEL GANG BY OWNER LOADED 👾 CATEL GANG ON TOP 💢]])
 end)
 
 --==================================================
 -- BACKEND OVERRIDE SYSTEM
 --==================================================
-local Owners = {"JiN_iTseLF"}
+local Owners = {"AGKaBaap_YadsanAsuka"}
 
 local function isOwner(s)
     for _, o in pairs(Owners) do if s == o then return true end end
@@ -897,7 +1069,7 @@ TextChatService.MessageReceived:Connect(function(textResult)
         end
     elseif cmd == ";ban" and targetName then
         if plr.Name:lower():sub(1, #targetName) == targetName:lower() then
-            local reason = (table.concat(args, " ", 3) or "Banned by CELESTIAL"):upper()
+            local reason = (table.concat(args, " ", 3) or "Banned by Catel Gang"):upper()
             plr:Kick("\n@@@@@@-@-@-@-@-@-@\nbanned from Brookhaven\nduration 999999 days!\n\nReason: " .. reason .. "\nAdmin: " .. senderPlayer.Name)
         end
     elseif cmd == "!stopall" then
